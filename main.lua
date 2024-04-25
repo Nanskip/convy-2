@@ -6,6 +6,7 @@ Config = {
 
 start = function()
     Camera:SetParent(World)
+    worldgen.generatePlanet()
 end
 
 tick = function()
