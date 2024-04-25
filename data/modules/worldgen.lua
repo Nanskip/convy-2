@@ -35,15 +35,15 @@ worldgen.generatePlanet = function(config)
             col = colors.deepWater
         elseif num >= -0.5 and num < -0.2 then
             col = colors.water
-        elseif num >= -0.2 and num < -0.1 then
+        elseif num >= -0.2 and num < -0.05 then
             col = colors.beach
-        elseif num >= -0.1 and num < 0.2 then
+        elseif num >= -0.05 and num < 0.2 then
             col = colors.grass
         elseif num >= 0.2 and num < 0.4 then
             col = colors.forest
-        elseif num >= 0.4 and num < 0.5 then
+        elseif num >= 0.4 and num < 0.6 then
             col = colors.hills
-        elseif num >= 0.5 then
+        elseif num >= 0.6 then
             col = colors.mountains
         else
             col = Color(255, 255, 255)
@@ -54,14 +54,16 @@ worldgen.generatePlanet = function(config)
 
     local genBlock = function(x, y, z)
         local block = getBl(x, y, z)
+        local block2 = Block(block.Color, Number3(x, y, z))
+        block2.Color = block2.Color + Color(math.floor(math.random(-5, 5)/2)*0.01, math.floor(math.random(-5, 5)/2)*0.01, math.floor(math.random(-5, 5)/2)*0.01)
 
-        planet:AddBlock(block)
         if block.Color == colors.grass or block.Color == colors.forest or block.Color == colors.hills or block.Color == colors.mountains then
-            planet.layer2:AddBlock(block)
+            if math.random(0, 5) ~= 0 then planet.layer2:AddBlock(block2) end
         end
         if block.Color == colors.hills or block.Color == colors.mountains then
-            planet.layer3:AddBlock(block)
+            if math.random(0, 5) ~= 0 then planet.layer3:AddBlock(block2) end
         end
+        planet:AddBlock(block2)
     end
 
     for x=scale*-0.5, scale do

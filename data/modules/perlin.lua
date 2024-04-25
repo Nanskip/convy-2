@@ -85,7 +85,7 @@ end
 perlin.seed(os.time())
 perlin.randomPermutation = function()
 	perlin("⚠️ perlin.randomPermutation() is deprecated, use perlin.seed() instead.")
-	perlin.seed(os.time())
+	perlin.seed(Time.Unix())
 end
 
 -- Helper functions
