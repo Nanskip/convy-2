@@ -5,7 +5,7 @@ Config = {
 }
 
 start = function()
-
+    Camera:SetParent(World)
 end
 
 tick = function()
@@ -22,7 +22,7 @@ end
 
 Client.Tick = function(dt)
     deltaTime = 62/(1/dt)
-    if githubScriptsCount == 1 then
+    if githubScriptsCount == loadCount then
         loadingScreen:hide()
         start()
         githubScriptsCount = nil
@@ -33,23 +33,26 @@ end
 
 -- load everything
 loadGitHub = function()
-    worldgen = loadFromGitHub("data/modules/worldgen.lua")
+    loadCount = 2
+    
+    worldgen = loadFromGitHub("data/modules/worldgen.lua", true)
+    perlin = loadFromGitHub("data/modules/perlin.lua", true)
 end
 
 -- loading function
-loadFromGitHub = function(url)
+loadFromGitHub = function(url, isCode)
     url = "https://raw.githubusercontent.com/Nanskipp/convy-2/main/" .. url
-    fileName = url:match("[^/]-$")
+    local fileName = url:match("[^/]-$")
     loadingText.Text = "Loading: " .. fileName
     local ret = HTTP:Get(url, function(res)
         if res.StatusCode ~= 200 then
-            print("Error on github loading. Code: " .. res.StatusCode)
+            print("Error on " .. fileName .." loading. Code: " .. res.StatusCode)
             return
         end
         local obj = load(res.Body:ToString(), nil, "bt", _ENV)
 
         githubScriptsCount = githubScriptsCount + 1
-        return obj()
+        if isCode then return obj() else return obj end
         end)
     return ret
 end
