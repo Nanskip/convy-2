@@ -2,7 +2,7 @@ worldgen = {}
 
 worldgen.generatePlanet = function(config)
     defaultConfig = {
-        scale = 64,
+        scale = 16,
         colors = {
             deepWater = Color(26, 51, 92),
             water = Color(34, 63, 110),
