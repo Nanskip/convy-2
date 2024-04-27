@@ -6,7 +6,7 @@ ambience.space = function()
             skyColor = Color(0,0,0),
             horizonColor = Color(0,0,0),
             abyssColor = Color(0,0,0),
-            lightColor = Color(142,180,204),
+            lightColor = Color(255, 255, 255),
             lightIntensity = 0.600000,
         },
         fog = {
