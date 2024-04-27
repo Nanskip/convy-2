@@ -136,6 +136,7 @@ worldgen.generatePlanet = function(config)
     end)
 
     planet:SetParent(World)
+    planet.Scale = 0.5
 end
 
 return worldgen
