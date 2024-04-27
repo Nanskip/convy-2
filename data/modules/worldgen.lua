@@ -133,10 +133,9 @@ worldgen.generatePlanet = function(config)
     end)
     Timer(0.7, false, function()
         planet.Pivot = Number3(planet.Width/planet.Scale.X, planet.Height/planet.Scale.Y, planet.Depth/planet.Scale.Z)/5
+        planet.Scale = 0.5
+        planet:SetParent(World)
     end)
-
-    planet:SetParent(World)
-    planet.Scale = 0.5
 end
 
 return worldgen
