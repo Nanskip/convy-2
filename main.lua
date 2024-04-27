@@ -7,6 +7,8 @@ Config = {
 start = function()
     Camera:SetParent(World)
     worldgen.generatePlanet()
+    ambience.space()
+    planet.Position.Y = 15
 end
 
 tick = function()
@@ -34,10 +36,11 @@ end
 
 -- load everything
 loadGitHub = function()
-    loadCount = 2
+    loadCount = 3
     
     worldgen = loadFromGitHub("data/modules/worldgen.lua", true)
     perlin = loadFromGitHub("data/modules/perlin.lua", true)
+    ambience = loadFromGitHub("data/modules/ambience.lua", true)
 end
 
 -- loading function
