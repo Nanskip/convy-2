@@ -2,7 +2,7 @@ worldgen = {}
 
 worldgen.generatePlanet = function(config)
     defaultConfig = {
-        scale = 16,
+        scale = 32,
         colors = {
             deepWater = Color(26, 51, 92),
             water = Color(34, 63, 110),
@@ -12,7 +12,7 @@ worldgen.generatePlanet = function(config)
             hills = Color(71, 74, 73),
             mountains = Color(59, 64, 63)
         },
-        zoom = 0.075*2
+        zoom = 0.075*2/2
     }
 
     local scale = config.scale or defaultConfig.scale
