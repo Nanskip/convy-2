@@ -99,19 +99,35 @@ loading_screen.intro = function(self)
 
     -- showing intro logo
     self.intro_logo = _UIKIT:createFrame()
-    self.intro_logo.Color = Color(255, 255, 255)
-    self.intro_logo:setImage(textures.intro_logo)
-    self.intro_logo.Size = {256, 256}
-    self.intro_logo.pos = {
-        Screen.Width/2 - self.intro_logo.Width/2,
-        Screen.Height/2 - self.intro_logo.Height/2
+    local logo = self.intro_logo
+    logo.Color = Color(255, 255, 255)
+    logo:setImage(textures.intro_logo)
+    logo.Size = {256, 256}
+    logo.pos = {
+        Screen.Width/2 - logo.Width/2,
+        Screen.Height/2 - logo.Height/2
     }
 
-    for i=1, 60*5 do
-        Timer(i/60, false,
-            function()
-                self.intro_logo.Color.A = mathlib.lerp(0, 255, i/60)
-            end)
+    local o = Object()
+    o.tick = 0
+    o.Tick = function(self)
+        o.tick = o.tick + 1
+
+        -- fading intro logo
+        local alpha = 255
+        local t = (300-o.tick)/300
+        if o.tick < 300 then
+            alpha = math.floor(mathlib.lerp(0, 255, t))
+        else
+            alpha = 0
+            self:Destroy()
+        end
+        logo.Color.A = alpha
+        logo.Size = {256+(t*20), 256+(t*20)}
+        logo.pos = {
+            Screen.Width/2 - logo.Width/2,
+            Screen.Height/2 - logo.Height/2
+        }
     end
 
     -- play intro sound
@@ -123,6 +139,7 @@ loading_screen.intro = function(self)
     Timer(5, false, 
         function()
             sound:Destroy()
+            loading_screen:finish()
         end)
 end
 
@@ -130,6 +147,9 @@ loading_screen.finish = function(self)
     debug.log("Loading screen removed.")
     self.background:remove()
     self.background = nil
+
+    self.intro_logo:remove()
+    self.intro_logo = nil
 
     -- play loading completed sound
     local sound = AudioSource()
@@ -212,7 +232,7 @@ end)
 -- start
 
 function _start_game()
-    loading_screen:finish()
+    loading_screen:intro()
     end
     
     _ON_START_CLIENT = function()

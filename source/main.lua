@@ -27,7 +27,7 @@ Other = {
 }
 
 _ON_START = function()
-    loading_screen:finish()
+    loading_screen:intro()
 end
 
 _ON_START_CLIENT = function()

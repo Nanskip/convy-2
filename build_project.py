@@ -185,6 +185,9 @@ def build_project(source_dir, output_file, github_base_url):
 # Test parameters
 source_directory = "source"
 output_file = "build/build.lua"
+
+# IMPORTANT
+# Make sure to update the github_base_url to the correct branch, repository, and path.
 github_base_url = "https://raw.githubusercontent.com/Nanskip/convy-2/refs/heads/main"
 
 build_project(source_directory, output_file, github_base_url)
