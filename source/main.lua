@@ -9,11 +9,19 @@ Models = {
 }
 
 Textures = {
-    nanskip = "textures/nanskip.gif",
+
+}
+
+Sounds = {
+    loading_completed = "sounds/loading_completed.mp3",
 }
 
 Data = {
 
+}
+
+Other = {
+    vcr_font = "other/vcr_font.ttf",
 }
 
 _ON_START = function()
