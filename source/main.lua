@@ -2,6 +2,7 @@ Modules = {
     worldgen = "modules/worldgen.lua",
     loading_screen = "modules/loading_screen.lua",
     debug = "modules/debug.lua",
+    mathlib = "modules/mathlib.lua",
 }
 
 Models = {
@@ -9,11 +10,12 @@ Models = {
 }
 
 Textures = {
-
+    intro_logo = "textures/intro_logo.png",
 }
 
 Sounds = {
     loading_completed = "sounds/loading_completed.mp3",
+    intro = "sounds/intro.mp3",
 }
 
 Data = {
@@ -25,8 +27,6 @@ Other = {
 }
 
 _ON_START = function()
-    worldgen.test()
-
     loading_screen:finish()
 end
 

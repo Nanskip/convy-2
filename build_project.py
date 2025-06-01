@@ -9,6 +9,7 @@ def transform_main_code(code):
         r'\bTextures\.([a-zA-Z_][a-zA-Z0-9_]*)': r'textures.\1',
         r'\bSounds\.([a-zA-Z_][a-zA-Z0-9_]*)': r'sounds.\1',
         r'\bData\.([a-zA-Z_][a-zA-Z0-9_]*)': r'data.\1',
+        r'\bOther\.([a-zA-Z_][a-zA-Z0-9_]*)': r'other.\1',
     }
     for pattern, repl in replacements.items():
         code = re.sub(pattern, repl, code)
@@ -70,7 +71,7 @@ def generate_build(modules, assets, main_code, github_base_url, module_sources):
         out.append(unpacked + "\n")
 
     out.append("local to_load = 0 \nlocal loaded = 0\n")
-    out.append("function _log(msg) debug.log(msg) end")
+    out.append("function _log(msg) debug.log(msg) loading_screen.loading_text_update(msg) end")
     out.append("function _check_ready() if loaded >= to_load then _log('All assets loaded') _start_game() end end\n")
 
     # Load 3D models
@@ -108,7 +109,8 @@ HTTP:Get("{url}", function(res)
 end)\n""")
 
     # Load other assets
-    for group in ["textures", "data", "sounds"]:
+    print("Loading other assets...")
+    for group in ["textures", "data", "sounds", "other"]:
         for key, filename in assets[group].items():
             url = f"{github_base_url}/source/{group}/{filename}"
             out.append(f"""to_load = to_load + 1
@@ -141,7 +143,7 @@ end)\n""")
 # Build project
 def build_project(source_dir, output_file, github_base_url):
     print("Building project...")
-    assets = {"models": {}, "textures": {}, "data": {}, "sounds": {}}
+    assets = {"models": {}, "textures": {}, "data": {}, "sounds": {}, "other": {}}
     module_sources = {}
     main_code = ""
 
@@ -168,6 +170,11 @@ def build_project(source_dir, output_file, github_base_url):
                 assets["textures"][file.rsplit('.', 1)[0]] = file
             elif file.endswith(".mp3"):
                 assets["sounds"][file.replace(".mp3", "")] = file
+            else:
+            # everything else will be saved in other table
+                if "other" in root:
+                    key = os.path.splitext(file)[0]
+                    assets["other"][key] = file
 
     build_code = generate_build({}, assets, main_code, github_base_url, module_sources)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
