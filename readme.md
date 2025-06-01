@@ -1,4 +1,3 @@
-# **[WIP] Convy 2**
+# Convey 2 [WIP]
 
-### **Convy 2** is a sequel to older version of **[Convy](https://github.com/Nanskipp/tech-game)** game on **[Cubzh](https://github.com/cubzh/cubzh)** platform.
-Build your own base, gather resources, defend from enemies and try to make this planet work only for **you**.
+Used NaN-GDK as a base for the game.
