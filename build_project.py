@@ -16,14 +16,34 @@ def transform_main_code(code):
     return code
 
 # Unpack module code
+import re
+
 def unpack_lua_module(code):
     print("Unpacking module...")
-    code = code.strip()
-    # Remove `local name = {}`
-    code = re.sub(r'^local\s+(\w+)\s*=\s*{}\s*', r'\1 = {}', code, flags=re.MULTILINE)
-    # Remove `return name`
-    code = re.sub(r'\breturn\s+\w+\s*$', '', code, flags=re.MULTILINE)
-    return code.strip()
+    lines = code.strip().splitlines()
+    output_lines = []
+    module_name = None
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Найти `local <name> = {}`
+        if module_name is None:
+            match = re.match(r'^local\s+(\w+)\s*=\s*{}\s*$', stripped)
+            if match:
+                module_name = match.group(1)
+                output_lines.append(f"{module_name} = {{}}")
+            else:
+                output_lines.append(line)
+            continue
+
+        # Удалить `return <module_name>` (с пробелами, табами и т.д.)
+        if re.match(rf'^\s*return\s+{re.escape(module_name)}\s*$', line):
+            continue  # пропускаем строку
+
+        output_lines.append(line)
+
+    return "\n".join(output_lines).strip()
 
 def extract_onstart_content(code):
     print("Extracting _ON_START function content...")
