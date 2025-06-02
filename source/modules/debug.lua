@@ -6,6 +6,7 @@ function debug.log(text)
     if _debug then
         print("Log: " .. text)
     end
+    debug._LOGS[#debug._LOGS+1] = text
 end
 
 debug._LOGS = {}
