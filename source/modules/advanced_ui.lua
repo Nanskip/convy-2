@@ -47,6 +47,7 @@ advanced_ui.createWindow = function(config)
     -- creating window
     local window = _UIKIT:createFrame()
     window.mask = _UIKIT:createFrame()
+    window.mask:_setIsMask(true)
     window.left_border = _UIKIT:createFrame()
     window.right_border = _UIKIT:createFrame()
     window.bottom_border = _UIKIT:createFrame()
@@ -77,6 +78,10 @@ advanced_ui.createWindow = function(config)
             self.latest_pointer_position = {X = pointerEvent.X, Y = pointerEvent.Y}
             window:setPos(final_pos)
         end
+    end
+
+    window.onPress = function(self, _quad, _idk, pointerEvent)
+        debug.log("Window [" .. window.config.title .. "] focused.")
     end
 
     -- creating topbar buttons
@@ -262,6 +267,43 @@ advanced_ui.createWindow = function(config)
         frame:update()
 
         return frame
+    end
+
+    window.createText = function(_, config)
+        local defaultConfig = {
+            pos = {0, 0},
+            color = Color(255, 255, 255),
+            fontsize = 14,
+            text = "Sample",
+            id = #window._CONTENT+1,
+        }
+
+        local cfg = {}
+        for k, v in pairs(defaultConfig) do
+            if config[k] ~= nil then
+                cfg[k] = config[k]
+            else
+                cfg[k] = v
+            end
+        end
+
+        -- creating text
+        local text = _UIKIT:createText("")
+        text.config = cfg
+
+        function text.update(self)
+            self.pos = self.config.pos
+            self.Color = self.config.color
+            self.Text = self.config.text
+            self.object.FontSize = self.config.fontsize
+            self.id = self.config.id
+        end
+        text:setParent(window.mask)
+        table.insert(window._CONTENT, text)
+
+        text:update()
+
+        return text
     end
 
     return window

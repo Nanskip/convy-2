@@ -69,6 +69,7 @@ cfg = {}
     -- creating window
     local window = _UIKIT:createFrame()
     window.mask = _UIKIT:createFrame()
+    window.mask:_setIsMask(true)
     window.left_border = _UIKIT:createFrame()
     window.right_border = _UIKIT:createFrame()
     window.bottom_border = _UIKIT:createFrame()
@@ -99,6 +100,10 @@ cfg = {}
             self.latest_pointer_position = {X = pointerEvent.X, Y = pointerEvent.Y}
             window:setPos(final_pos)
         end
+    end
+
+    window.onPress = function(self, _quad, _idk, pointerEvent)
+        debug.log("Window [" .. window.config.title .. "] focused.")
     end
 
     -- creating topbar buttons
@@ -286,6 +291,43 @@ cfg = {}
         return frame
     end
 
+    window.createText = function(_, config)
+        local defaultConfig = {
+            pos = {0, 0},
+            color = Color(255, 255, 255),
+            fontsize = 14,
+            text = "Sample",
+            id = #window._CONTENT+1,
+        }
+
+cfg = {}
+        for k, v in pairs(defaultConfig) do
+            if config[k] ~= nil then
+                cfg[k] = config[k]
+            else
+                cfg[k] = v
+            end
+        end
+
+        -- creating text
+        local text = _UIKIT:createText("")
+        text.config = cfg
+
+        function text.update(self)
+            self.pos = self.config.pos
+            self.Color = self.config.color
+            self.Text = self.config.text
+            self.object.FontSize = self.config.fontsize
+            self.id = self.config.id
+        end
+        text:setParent(window.mask)
+        table.insert(window._CONTENT, text)
+
+        text:update()
+
+        return text
+    end
+
     return window
 end
 
@@ -298,6 +340,7 @@ function debug.log(text)
         print("Log: " .. text)
     end
     debug._LOGS[#debug._LOGS+1] = text
+    debug:updateConsole()
 end
 
 debug._LOGS = {}
@@ -310,6 +353,58 @@ function debug.getLogs()
     end
 
     Dev:CopyToClipboard(logs)
+end
+
+function debug.openConsole(self)
+    local cfg = {
+        title = "Console",
+        title_size = 14,
+        width = 800,
+        height = 450,
+        topbar_height = 20,
+        topbar_color = Color(18, 23, 20),
+        topbar_text_color = Color(225, 225, 225),
+        background_color = Color(27, 33, 29),
+        border_color = Color(0, 0, 0),
+        border_width = 2,
+        pos = {0, 0},
+        topbar_buttons = {
+            {
+                text = "X",
+                func = "close",
+                size = 14,
+                color = Color(18, 23, 21),
+                textcolor = Color(225, 225, 225)
+            }
+        }
+    }
+    local console = _UI.createWindow(cfg)
+
+    local textcfg = {
+            pos = {5, 5},
+            color = Color(255, 255, 255),
+            fontsize = 14,
+            text = "CONSOLE OUTPUT",
+        }
+    console.text = console:createText(textcfg)
+
+    self.console = console
+    self:updateConsole()
+end
+
+debug.updateConsole = function(self)
+    if self.console ~= nil then
+        local text = ""
+        for _, log in ipairs(self._LOGS) do
+            text = text .. log
+            if _ ~= #self._LOGS then
+                text = text .. "\n"
+            end
+        end
+        self.console.text.config.text = text
+
+        self.console.text:update()
+    end
 end
 
 loading_screen = {}
@@ -522,4 +617,4 @@ function _start_game()
     loading_screen:start()
 end
 
--- hash: 732370940
+-- hash: 538423458
