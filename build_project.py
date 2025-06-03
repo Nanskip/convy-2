@@ -1,5 +1,6 @@
 import os
 import re
+import random
 
 # Transform main code
 def transform_main_code(code):
@@ -16,34 +17,35 @@ def transform_main_code(code):
     return code
 
 # Unpack module code
-import re
-
 def unpack_lua_module(code):
     print("Unpacking module...")
     lines = code.strip().splitlines()
     output_lines = []
     module_name = None
+    return_reached = False
 
     for line in lines:
-        stripped = line.strip()
-
-        # Найти `local <name> = {}`
-        if module_name is None:
-            match = re.match(r'^local\s+(\w+)\s*=\s*{}\s*$', stripped)
-            if match:
-                module_name = match.group(1)
-                output_lines.append(f"{module_name} = {{}}")
-            else:
-                output_lines.append(line)
+        if return_reached:
             continue
 
-        # Удалить `return <module_name>` (с пробелами, табами и т.д.)
-        if re.match(rf'^\s*return\s+{re.escape(module_name)}\s*$', line):
-            continue  # пропускаем строку
+        stripped = line.strip()
+
+        # Найти `local name = {}`
+        match = re.match(r'^local\s+(\w+)\s*=\s*{}\s*$', stripped)
+        if match:
+            module_name = match.group(1)
+            output_lines.append(f"{module_name} = {{}}")
+            continue
+
+        # Найти `return name` и завершить
+        if module_name and stripped == f"return {module_name}":
+            return_reached = True
+            continue
 
         output_lines.append(line)
 
     return "\n".join(output_lines).strip()
+
 
 def extract_onstart_content(code):
     print("Extracting _ON_START function content...")
@@ -197,6 +199,8 @@ def build_project(source_dir, output_file, github_base_url):
                     assets["other"][key] = file
 
     build_code = generate_build({}, assets, main_code, github_base_url, module_sources)
+    # add a random 8 number to the end of the file name to prevent overwriting
+    build_code += "\n-- hash: " + str(random.randint(100000000, 999999999))
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(build_code)

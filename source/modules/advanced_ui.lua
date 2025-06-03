@@ -23,6 +23,15 @@ advanced_ui.createWindow = function(config)
         border_color = Color(31, 34, 36),
         border_width = 1,
         pos = {0, 0},
+        topbar_buttons = {
+            {
+                text = "X",
+                func = "close",
+                size = 14,
+                color = Color(237, 66, 24),
+                textcolor = Color(255, 255, 255)
+            }
+        }
     }
 
     -- config merging
@@ -45,25 +54,42 @@ advanced_ui.createWindow = function(config)
     -- topbar + events
     window.topbar = _UIKIT:createFrame()
     window.title = _UIKIT:createText(cfg.title)
-    window.topbar.onPress = function(self, pointerEvent)
+    window.topbar.onPress = function(self, _quad, _idk, pointerEvent)
         debug.log("Pressed top border of window " .. window.config.title)
+        debug.log("Position: [X:" .. pointerEvent.X .. ", Y:" .. pointerEvent.Y .. "]")
         self.latest_pointer_position = {X = pointerEvent.X, Y = pointerEvent.Y}
     end
     window.topbar.onRelease = function(self)
         debug.log("Released top border of window " .. window.config.title)
+        self.latest_pointer_position = nil
     end
     window.topbar.onDrag = function(self, pointerEvent)
         if self.latest_pointer_position.X ~= nil and self.latest_pointer_position.Y ~= nil then
             local pos_diff = {
-                X = pointerEvent.X - self.latest_pointer_position.X,
-                Y = pointerEvent.Y - self.latest_pointer_position.Y
+                X = (pointerEvent.X - self.latest_pointer_position.X) * window.screen_mult[1],
+                Y = (pointerEvent.Y - self.latest_pointer_position.Y) * window.screen_mult[2],
             }
             local final_pos = {
-                self.pos.X + pos_diff.X,
-                self.pos.Y + pos_diff.Y
+                window.pos.X + pos_diff.X,
+                window.pos.Y + pos_diff.Y,
             }
-            self:setPos(final_pos)
+            self.latest_pointer_position = {X = pointerEvent.X, Y = pointerEvent.Y}
+            window:setPos(final_pos)
         end
+    end
+
+    -- creating topbar buttons
+    window.topbar_buttons = {}
+    for i, button in ipairs(cfg.topbar_buttons) do
+        local btn = _UIKIT:createFrame()
+        btn.btn_text = _UIKIT:createText(button.text)
+        btn.onRelease = function(self)
+            debug.log("Button " .. button.text .. " pressed")
+            if button.func == "close" then
+                window:close(true)
+            end
+        end
+        table.insert(window.topbar_buttons, btn)
     end
 
     -- SAVE CONFIG
@@ -139,11 +165,56 @@ advanced_ui.createWindow = function(config)
         self.top_border.Color = self.config.border_color
         self.top_border.Size = {self.config.width + (self.config.border_width * 2), self.config.border_width}
         self.top_border.pos = {self.pos.X - self.config.border_width, self.pos.Y + self.config.height}
+
+        -- updating topbar buttons
+        for i, btn in ipairs(self.topbar_buttons) do
+            btn.btn_text.object.FontSize = self.config.topbar_buttons[i].size
+            btn.Width = btn.btn_text.Height + self.config.border_width * 2
+            btn.Height = btn.btn_text.Height + self.config.border_width * 2
+            btn.Color = self.config.topbar_buttons[i].color
+            btn.pos = {
+                self.topbar.pos.X + self.config.width - ((btn.Width + self.config.border_width)*i),
+                self.topbar.pos.Y + (self.config.topbar_height-btn.Height)/2
+            }
+            btn.btn_text.pos = {
+                btn.pos.X + (btn.Width - btn.btn_text.Width)/2,
+                btn.pos.Y + (btn.Height - btn.btn_text.Height)/2
+            }
+            btn.btn_text.Color = self.config.topbar_buttons[i].textcolor
+        end
+
+        self.screen_mult = {Screen.Width, Screen.Height}
+    end
+
+    window.destroy = function(self)
+        debug.log("Destroying window " .. self.config.title)
+
+        self.left_border:remove()
+        self.right_border:remove()
+        self.bottom_border:remove()
+        self.top_border:remove()
+        self.topbar:remove()
+        self.title:remove()
+        for _, btn in ipairs(self.topbar_buttons) do
+            btn.btn_text:remove()
+            btn:remove()
+        end
+        self:remove()
+    end
+
+    window.close = function(self, destroy)
+        debug.log("Closing window " .. self.config.title)
+
+        if not destroy then
+            self.pos = {-1000, -1000}
+            self:update()
+        else
+            self:destroy()
+        end
     end
 
     window:update()
+    window._CONTENT = {}
 
     return window
 end
-
-return advanced_ui
