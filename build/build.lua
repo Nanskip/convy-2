@@ -68,6 +68,7 @@ cfg = {}
 
     -- creating window
     local window = _UIKIT:createFrame()
+    window.mask = _UIKIT:createFrame()
     window.left_border = _UIKIT:createFrame()
     window.right_border = _UIKIT:createFrame()
     window.bottom_border = _UIKIT:createFrame()
@@ -155,6 +156,11 @@ mergedConfig = {}
         self.Size = {self.config.width, self.config.height}
         self.pos = self.config.pos
 
+        -- updating mask
+        self.mask.Color = Color(255, 255, 255, 0)
+        self.mask.Size = {self.config.width, self.config.height}
+        self.mask.pos = self.config.pos
+
         -- updating topbar
         self.topbar.Color = self.config.topbar_color
         self.topbar.Size = {self.config.width, self.config.topbar_height}
@@ -191,8 +197,11 @@ mergedConfig = {}
         -- updating topbar buttons
         for i, btn in ipairs(self.topbar_buttons) do
             btn.btn_text.object.FontSize = self.config.topbar_buttons[i].size
-            btn.Width = btn.btn_text.Height + self.config.border_width * 2
             btn.Height = btn.btn_text.Height + self.config.border_width * 2
+            btn.Width = math.max(
+                btn.btn_text.Height + self.config.border_width * 2,
+                btn.btn_text.Width + self.config.border_width * 2
+            )
             btn.Color = self.config.topbar_buttons[i].color
             btn.pos = {
                 self.topbar.pos.X + self.config.width - ((btn.Width + self.config.border_width)*i),
@@ -221,6 +230,10 @@ mergedConfig = {}
             btn.btn_text:remove()
             btn:remove()
         end
+        for _, val in ipairs(self._CONTENT) do
+            val:remove()
+        end
+        self.mask:remove()
         self:remove()
     end
 
@@ -237,6 +250,41 @@ mergedConfig = {}
 
     window:update()
     window._CONTENT = {}
+
+    window.createFrame = function(_, config)
+        local defaultConfig = {
+            pos = {0, 0},
+            size = {0, 0},
+            color = Color(255, 255, 255),
+            id = #window._CONTENT+1,
+        }
+
+cfg = {}
+        for k, v in pairs(defaultConfig) do
+            if config[k] ~= nil then
+                cfg[k] = config[k]
+            else
+                cfg[k] = v
+            end
+        end
+
+        -- creating frame
+        local frame = _UIKIT:createFrame()
+        frame.config = cfg
+
+        function frame.update(self)
+            frame.pos = cfg.pos
+            frame.Size = cfg.size
+            frame.Color = cfg.color
+            frame.id = cfg.id
+        end
+        frame:setParent(window.mask)
+        table.insert(window._CONTENT, frame)
+
+        frame:update()
+
+        return frame
+    end
 
     return window
 end
@@ -474,4 +522,4 @@ function _start_game()
     loading_screen:start()
 end
 
--- hash: 916996080
+-- hash: 732370940
