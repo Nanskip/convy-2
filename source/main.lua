@@ -4,6 +4,7 @@ Modules = {
     debug = "modules/debug.lua",
     mathlib = "modules/mathlib.lua",
     advanced_ui = "modules/advanced_ui.lua",
+    perlin = "modules/perlin.lua",
 }
 
 Models = {
