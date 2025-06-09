@@ -104,10 +104,3 @@ perlin.randomPermutation = function()
 	perlin("⚠️ perlin.randomPermutation() is deprecated, use perlin.seed() instead.")
 	perlin.seed(os.time())
 end
-
--- Helper functions
-function perlin.fade(t)
-	return t * t * t * (t * (t * 6 - 15) + 10)
-end
-
-return perlin

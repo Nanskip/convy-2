@@ -73,5 +73,3 @@ debug.updateConsole = function(self)
         self.console.text:update()
     end
 end
-
-return debug

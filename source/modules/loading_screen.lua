@@ -123,5 +123,3 @@ loading_screen.finish = function(self)
             sound:Destroy()
         end)
 end
-
-return loading_screen
