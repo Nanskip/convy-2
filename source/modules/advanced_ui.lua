@@ -256,10 +256,10 @@ advanced_ui.createWindow = function(config)
         frame.config = cfg
 
         function frame.update(self)
-            frame.pos = cfg.pos
-            frame.Size = cfg.size
-            frame.Color = cfg.color
-            frame.id = cfg.id
+            frame.pos = self.config.pos
+            frame.Size = self.config.size
+            frame.Color = self.config.color
+            frame.id = self.config.id
         end
         frame:setParent(window.mask)
         table.insert(window._CONTENT, frame)
