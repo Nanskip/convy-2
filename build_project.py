@@ -22,48 +22,76 @@ def unpack_lua_module(code):
     lines = code.strip().splitlines()
     output_lines = []
     module_name = None
-    return_reached = False
 
-    for line in lines:
-        if return_reached:
-            continue
-
+    for i, line in enumerate(lines):
         stripped = line.strip()
 
-        # Найти `local name = {}`
         match = re.match(r'^local\s+(\w+)\s*=\s*{}\s*$', stripped)
         if match:
             module_name = match.group(1)
             output_lines.append(f"{module_name} = {{}}")
             continue
 
-        # Найти `return name` и завершить
-        if module_name and stripped == f"return {module_name}":
-            return_reached = True
-            continue
-
         output_lines.append(line)
+
+    if module_name and output_lines[-1].strip() == f"return {module_name}":
+        output_lines = output_lines[:-1]
 
     return "\n".join(output_lines).strip()
 
+def find_matching_end(code, start_index):
+    pattern = re.compile(r'\bfunction\b|\bend\b')
+    balance = 1
+    index = start_index
+
+    for match in pattern.finditer(code, pos=start_index):
+        if match.group() == 'function':
+            balance += 1
+        elif match.group() == 'end':
+            balance -= 1
+
+        if balance == 0:
+            return match.end()
+
+    raise ValueError("Matching 'end' not found for function starting at index {}".format(start_index))
+
+def extract_function_body(code, func_name):
+    pattern = re.compile(rf'{func_name}\s*=\s*function\s*\([^)]*\)')
+    match = pattern.search(code)
+    if not match:
+        return ""
+    
+    start_pos = match.end()
+    lines = code[start_pos:].splitlines()
+    
+    body_lines = []
+    balance = 1
+    for line in lines:
+        balance += line.count("function")
+        balance -= line.count("end")
+        body_lines.append(line)
+        if balance == 0:
+            if body_lines[-1].strip() == "end":
+                body_lines.pop()
+            break
+
+    return "\n".join(body_lines).rstrip()
 
 def extract_onstart_content(code):
     print("Extracting _ON_START function content...")
-    # Find _ON_START function content
-    pattern = r'_ON_START\s*=\s*function\s*\([^)]*\)\s*(.*?)(?=end\s*$)'
-    match = re.search(pattern, code, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return ""
+    pattern = r'_ON_START\s*=\s*function\s*\([^)]*\)\s*'
+    match = re.search(pattern, code)
+    if not match:
+        return ""
+
+    start_idx = match.end()
+    end_idx = find_matching_end(code, start_idx)
+
+    return code[start_idx:end_idx].strip()
 
 def extract_onstart_client_content(code):
     print("Extracting _ON_START_CLIENT function content...")
-    pattern = r'_ON_START_CLIENT\s*=\s*function\s*\([^)]*\)\s*(.*?)(?=end\s*$)'
-    match = re.search(pattern, code, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return ""
-
+    return extract_function_body(code, "_ON_START_CLIENT")
 
 # Generate build file
 def generate_build(modules, assets, main_code, github_base_url, module_sources):
