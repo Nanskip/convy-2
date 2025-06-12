@@ -19,7 +19,7 @@ Textures = {
 Sounds = {
     loading_completed = "sounds/loading_completed.mp3",
     intro = "sounds/intro.mp3",
-    music_day1 = "sounds/convy2-day1.mp3",
+    music_day1 = "sounds/convy2_day1.mp3",
 }
 
 Data = {
