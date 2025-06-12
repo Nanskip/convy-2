@@ -86,8 +86,14 @@ def extract_onstart_content(code):
 
     start_idx = match.end()
     end_idx = find_matching_end(code, start_idx)
+    body = code[start_idx:end_idx].strip()
 
-    return code[start_idx:end_idx].strip()
+    # Удалить последний `end`, если он есть
+    lines = body.splitlines()
+    if lines and lines[-1].strip() == "end":
+        lines = lines[:-1]
+    return "\n".join(lines).strip()
+
 
 def extract_onstart_client_content(code):
     print("Extracting _ON_START_CLIENT function content...")

@@ -140,9 +140,10 @@ worldgen.diamondSquare = function(config)
     local defaultConfig = {
         size = 257, -- should be 2^n + 1
         seed = os.time(), -- Use os.time() for varied maps, or a fixed number for reproducible ones
-        randomMin = -0.2,
-        randomMax = 0.2,
+        randomMin = -0.8,
+        randomMax = 0.8,
         roughness = 0.5,
+        baseData = nil, -- replaced with 2x2 map that actually scales up to corners
     }
 
     local cfg = {}
@@ -183,7 +184,15 @@ worldgen.diamondSquare = function(config)
         map[size][size] = math.random()
     end
 
-    seedCorners()
+    if cfg.baseData == nil then
+        seedCorners()
+    else
+        for y = 1, size do
+            for x = 1, size do
+                map[y][x] = cfg.baseData[y][x]
+            end
+        end
+    end
 
     local function get(x, y)
         if x < 1 or x > size or y < 1 or y > size then
@@ -269,6 +278,8 @@ worldgen.diamondSquare = function(config)
             end
         end
 
+        cfg.randomMin = cfg.randomMin * (cfg.randomLowering or 1)
+        cfg.randomMax = cfg.randomMax * (cfg.randomLowering or 1)
         stepSize = halfStep
     end
 
@@ -306,14 +317,20 @@ worldgen.diamondSquare = function(config)
             local color = Color(255, 255, 255)
             if h > 0.9 then
                 color = Color(213, 219, 227)
-            elseif h > 0.7 then
+            elseif h > 0.8 then
                 color = Color(176, 191, 184)
+            elseif h > 0.6 then
+                color = Color(54, 107, 68)
             elseif h > 0.4 then
                 color = Color(43, 120, 64)
-            elseif h > 0.2 then
+            elseif h > 0.25 then
                 color = Color(56, 150, 82)
-            else
+            elseif h > 0.2 then
+                color = Color(222, 202, 87)
+            elseif h > 0.1 then
                 color = Color(45, 59, 145)
+            else
+                color = Color(37, 36, 120)
             end
 
             shape:AddBlock(color, x - 1, z, y - 1)
