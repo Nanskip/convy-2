@@ -333,7 +333,7 @@ worldgen.diamondSquare = function(config)
                 color = Color(37, 36, 120)
             end
 
-            shape:AddBlock(color, x - 1, z, y - 1)
+            shape:AddBlock(color, x - 1, 0, y - 1)
         end
     end
 

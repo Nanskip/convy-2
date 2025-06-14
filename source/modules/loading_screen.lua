@@ -72,7 +72,7 @@ loading_screen.intro = function(self)
     local o = Object()
     o.tick = 0
     o.Tick = function(self)
-        o.tick = o.tick + 1
+        o.tick = o.tick + 1*_DT
 
         -- fading intro logo
         local alpha = 255
@@ -83,12 +83,14 @@ loading_screen.intro = function(self)
             alpha = 0
             self:Destroy()
         end
-        logo.Color.A = alpha
-        logo.Size = {256+(t*20), 256+(t*20)}
-        logo.pos = {
-            Screen.Width/2 - logo.Width/2,
-            Screen.Height/2 - logo.Height/2
-        }
+        if logo.Color ~= nil then
+            logo.Color.A = alpha
+            logo.Size = {256+(t*20), 256+(t*20)}
+            logo.pos = {
+                Screen.Width/2 - logo.Width/2,
+                Screen.Height/2 - logo.Height/2
+            }
+        end
     end
 
     -- play intro sound
@@ -97,7 +99,7 @@ loading_screen.intro = function(self)
     sound.Sound = sounds.intro
     sound:Play()
 
-    Timer(5, false, 
+    Timer(5*_DT, false, 
         function()
             sound:Destroy()
             loading_screen:finish()
@@ -118,7 +120,7 @@ loading_screen.finish = function(self)
     sound.Sound = sounds.loading_completed
     sound:Play()
 
-    Timer(3, false, 
+    Timer(3*_DT, false, 
         function()
             sound:Destroy()
         end)

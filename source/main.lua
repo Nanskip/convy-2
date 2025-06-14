@@ -6,6 +6,8 @@ Modules = {
     advanced_ui = "modules/advanced_ui.lua",
     perlin = "modules/perlin.lua",
     temporary = "modules/temporary.lua",
+    scenes = "modules/scenes.lua",
+    game_manager = "modules/game_manager.lua",
 }
 
 Models = {
@@ -35,6 +37,9 @@ _ON_START = function()
     _UI:init()
 
     temporary:init()
+    game_manager:init()
+    game_manager:switch("game")
+    game_manager:init_scene()
 end
 
 _ON_START_CLIENT = function()

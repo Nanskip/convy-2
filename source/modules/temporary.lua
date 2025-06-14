@@ -103,11 +103,11 @@ temporary.init = function()
     end
 
     local a = AudioSource()
-    a.Sound = sounds.music_day1
+    a.Sound = sounds.convy2_day1
     a.Loop = true
     a:SetParent(Camera)
     a.Volume = 0.15
-    a:Play()
+    --a:Play()
     -- temporary test
 end
 
