@@ -16,6 +16,7 @@ Models = {
 
 Textures = {
     intro_logo = "textures/intro_logo.png",
+    tile_atlas = "textures/tile_atlas.png",
 }
 
 Sounds = {
@@ -25,7 +26,7 @@ Sounds = {
 }
 
 Data = {
-
+    tiles = "data/world_tiles.json",
 }
 
 Other = {

@@ -106,6 +106,10 @@ loading_screen.intro = function(self)
         end)
 end
 
+loading_screen.resizeListener = LocalEvent:Listen(LocalEvent.Name.ScreenDidResize, function(_, _)
+    loading_screen:update()
+end)
+
 loading_screen.finish = function(self)
     debug.log("Loading screen removed.")
     self.background:remove()
@@ -113,6 +117,8 @@ loading_screen.finish = function(self)
 
     self.intro_logo:remove()
     self.intro_logo = nil
+
+    self.resizeListener:remove()
 
     -- play loading completed sound
     local sound = AudioSource()

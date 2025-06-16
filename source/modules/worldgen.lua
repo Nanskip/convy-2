@@ -315,22 +315,34 @@ worldgen.diamondSquare = function(config)
             local z = math.floor(h * 20) -- height (20 blocs max)
 
             local color = Color(255, 255, 255)
-            if h > 0.9 then
-                color = Color(213, 219, 227)
-            elseif h > 0.8 then
-                color = Color(176, 191, 184)
-            elseif h > 0.6 then
-                color = Color(54, 107, 68)
-            elseif h > 0.4 then
-                color = Color(43, 120, 64)
-            elseif h > 0.25 then
-                color = Color(56, 150, 82)
-            elseif h > 0.2 then
-                color = Color(222, 202, 87)
-            elseif h > 0.1 then
-                color = Color(45, 59, 145)
+            if h < 0.07 then
+                color = Color(34, 40, 143)
+            elseif h < 0.14 then
+                color = Color(57, 63, 168)
+            elseif h < 0.21 then
+                color = Color(146, 151, 153)
+            elseif h < 0.28 then
+                color = Color(255, 240, 137)
+            elseif h < 0.35 then
+                color = Color(227, 216, 140)
+            elseif h < 0.42 then
+                color = Color(187, 158, 129)
+            elseif h < 0.49 then
+                color = Color(174, 163, 97)
+            elseif h < 0.56 then
+                color = Color(151, 187, 99)
+            elseif h < 0.63 then
+                color = Color(133, 170, 80)
+            elseif h < 0.7 then
+                color = Color(144, 155, 148)
+            elseif h < 0.77 then
+                color = Color(147, 130, 210)
+            elseif h < 0.84 then
+                color = Color(146, 136, 181)
+            elseif h < 0.91 then
+                color = Color(165, 179, 181)
             else
-                color = Color(37, 36, 120)
+                color = Color(210, 217, 218)
             end
 
             shape:AddBlock(color, x - 1, 0, y - 1)

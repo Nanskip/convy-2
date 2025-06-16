@@ -1,0 +1,74 @@
+{
+    "tiles": [
+        {
+            "name": "deep_water",
+            "pos" : [0, 0],
+            "animated": true
+        },
+        {
+            "name": "water",
+            "pos" : [8, 0],
+            "animated": true
+        },
+        {
+            "name": "low_water",
+            "pos" : [16, 0],
+            "animated": true
+        },
+        {
+            "name": "soft_sand",
+            "pos" : [24, 0],
+            "animated": false
+        },
+        {
+            "name": "hard_sand",
+            "pos" : [32, 0],
+            "animated": false
+        },
+        {
+            "name": "gravel",
+            "pos" : [40, 0],
+            "animated": false
+        },
+        {
+            "name": "low_grass",
+            "pos" : [48, 0],
+            "animated": false
+        },
+        {
+            "name": "grass",
+            "pos" : [56, 0],
+            "animated": false
+        },
+        {
+            "name": "high_grass",
+            "pos" : [64, 0],
+            "animated": false
+        },
+        {
+            "name": "spores",
+            "pos" : [72, 0],
+            "animated": false
+        },
+        {
+            "name": "dense_spores",
+            "pos" : [80, 0],
+            "animated": false
+        },
+        {
+            "name": "low_rocks",
+            "pos" : [88, 0],
+            "animated": false
+        },
+        {
+            "name": "rocks",
+            "pos" : [96, 0],
+            "animated": false
+        },
+        {
+            "name": "frozen_rocks",
+            "pos" : [104, 0],
+            "animated": false
+        }
+    ]
+}
