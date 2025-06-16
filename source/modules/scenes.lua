@@ -38,8 +38,9 @@ scenes.game = function(self)
         roughness = 0.5,
         baseData = nil,
     }
-    _MAP = worldgen.diamondSquare(cfg)
-    _MAP:SetParent(World)
+    _MAP = worldgen.diamondSquare(cfg, true)
+    chunk_manager:init(_MAP)
+    chunk_manager:renderFullMap()
 end
 
 return scenes

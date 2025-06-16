@@ -136,7 +136,7 @@ worldgen.perlinCube = function(config)
 end
 
 -- diamond square algorithm to generate a plane
-worldgen.diamondSquare = function(config)
+worldgen.diamondSquare = function(config, returnMap)
     local defaultConfig = {
         size = 257, -- should be 2^n + 1
         seed = os.time(), -- Use os.time() for varied maps, or a fixed number for reproducible ones
@@ -307,47 +307,53 @@ worldgen.diamondSquare = function(config)
         end
     end
 
-    -- creating shape
-    local shape = MutableShape()
-    for y = 1, size do
-        for x = 1, size do
-            local h = map[y][x]
-            local z = math.floor(h * 20) -- height (20 blocs max)
+    -- creating shape if returnMap is false
+    if not returnMap then
+        local shape = MutableShape()
+        for y = 1, size do
+            for x = 1, size do
+                local h = map[y][x]
+                local z = math.floor(h * 20) -- height (20 blocs max)
 
-            local color = Color(255, 255, 255)
-            if h < 0.07 then
-                color = Color(34, 40, 143)
-            elseif h < 0.14 then
-                color = Color(57, 63, 168)
-            elseif h < 0.21 then
-                color = Color(146, 151, 153)
-            elseif h < 0.28 then
-                color = Color(255, 240, 137)
-            elseif h < 0.35 then
-                color = Color(227, 216, 140)
-            elseif h < 0.42 then
-                color = Color(187, 158, 129)
-            elseif h < 0.49 then
-                color = Color(174, 163, 97)
-            elseif h < 0.56 then
-                color = Color(151, 187, 99)
-            elseif h < 0.63 then
-                color = Color(133, 170, 80)
-            elseif h < 0.7 then
-                color = Color(144, 155, 148)
-            elseif h < 0.77 then
-                color = Color(147, 130, 210)
-            elseif h < 0.84 then
-                color = Color(146, 136, 181)
-            elseif h < 0.91 then
-                color = Color(165, 179, 181)
-            else
-                color = Color(210, 217, 218)
+                local color = Color(255, 255, 255)
+                if h < 0.07 then
+                    color = Color(34, 40, 143)
+                elseif h < 0.14 then
+                    color = Color(57, 63, 168)
+                elseif h < 0.21 then
+                    color = Color(146, 151, 153)
+                elseif h < 0.28 then
+                    color = Color(255, 240, 137)
+                elseif h < 0.35 then
+                    color = Color(227, 216, 140)
+                elseif h < 0.42 then
+                    color = Color(187, 158, 129)
+                elseif h < 0.49 then
+                    color = Color(174, 163, 97)
+                elseif h < 0.56 then
+                    color = Color(151, 187, 99)
+                elseif h < 0.63 then
+                    color = Color(133, 170, 80)
+                elseif h < 0.7 then
+                    color = Color(144, 155, 148)
+                elseif h < 0.77 then
+                    color = Color(147, 130, 210)
+                elseif h < 0.84 then
+                    color = Color(146, 136, 181)
+                elseif h < 0.91 then
+                    color = Color(165, 179, 181)
+                else
+                    color = Color(210, 217, 218)
+                end
+
+                shape:AddBlock(color, x - 1, 0, y - 1)
             end
-
-            shape:AddBlock(color, x - 1, 0, y - 1)
         end
-    end
 
-    return shape
+        return shape
+    else
+        -- return map if returnMap is true
+        map.size = size
+        return map
+    end
 end

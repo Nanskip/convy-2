@@ -49,14 +49,20 @@ loading_screen.intro = function(self)
     debug.log("Intro initialized.")
 
     -- removing game title
-    self.game_title:remove()
-    self.game_title = nil
+    if self.game_title ~= nil then
+        self.game_title:remove()
+        self.game_title = nil
+    end
 
-    self.title:remove()
-    self.title = nil
+    if self.title ~= nil then
+        self.title:remove()
+        self.title = nil
+    end
 
-    self.loading_text:remove()
-    self.loading_text = nil
+    if self.loading_text ~= nil then
+        self.loading_text:remove()
+        self.loading_text = nil
+    end
 
     -- showing intro logo
     self.intro_logo = _UIKIT:createFrame()

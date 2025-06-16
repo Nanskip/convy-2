@@ -8,6 +8,7 @@ Modules = {
     temporary = "modules/temporary.lua",
     scenes = "modules/scenes.lua",
     game_manager = "modules/game_manager.lua",
+    chunk_manager = "modules/chunk_manager.lua",
 }
 
 Models = {
