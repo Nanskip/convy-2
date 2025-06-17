@@ -102,29 +102,38 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     -- checking neighbours
     local neighbour_tiles = chunk_manager:checkNeighbours(chunkX, chunkY, x, y)
     for key, value in ipairs(neighbour_tiles) do
-        --1 = right
-        --2 = left
-        --3 = top
-        --4 = bottom
-        block.masks[value] = Quad()
-        block.masks[value].Position = Number3(
+        if self.tile_atlas["mask" .. key] == nil then
+            debug.log("Mask not found: mask" .. key)
+        end
+        local direction = "left"
+        if key == 1 then
+            direction = "left"
+        elseif key == 2 then
+            direction = "up"
+        elseif key == 3 then
+            direction = "right"
+        elseif key == 4 then
+            direction = "down"
+        end
+        block.masks[key] = Quad()
+        block.masks[key].Position = Number3(
             chunkX*self.chunk_size + x + 1,
             0.1,
             chunkY*self.chunk_size + y + 1
         )
-        block.masks[value]:SetParent(World)
-        block.masks[value].Width = 128
-        block.masks[value].Height = 128
-        block.masks[value].Tiling = Number2(1/16, 1/16)
+        block.masks[key]:SetParent(World)
+        block.masks[key].Width = 128
+        block.masks[key].Height = 128
+        block.masks[key].Tiling = Number2(1/16, 1/16)
         local cords = {
-            self.tile_atlas[mask .. value].pos[1]/8,
-            self.tile_atlas[mask .. value].pos[2]/8
+            self.tile_atlas["mask_" .. direction].pos[1]/8,
+            self.tile_atlas["mask_" .. direction].pos[2]/8
         }
         -- no variations for masks
         quad.Offset = Number2(cords[1]/16, cords[2]/16)
-        block.masks[value].Image = {data = textures.tile_atlas, filtering=false}
-        block.masks[value].Rotation.X = math.pi/2
-        block.masks[value].Scale = 1/128
+        block.masks[key].Image = {data = textures.tile_atlas, filtering=false, alpha=true}
+        block.masks[key].Rotation.X = math.pi/2
+        block.masks[key].Scale = 1/128
     end
 end
 
@@ -209,6 +218,8 @@ chunk_manager.checkNeighbour = function(self, chunkX, chunkY, x, y, neighbour_ti
     local neighbourH = neighbourBlock.height
 
     local neighbour_tile = chunk_manager:getTile(neighbourH)
-
-    neighbour_tiles[#neighbour_tiles+1] = neighbour_tile
+    local original_tile = chunk_manager:getTile(self.chunks[chunkX][chunkY][x][y].height)
+    if neighbour_tile ~= original_tile then
+        neighbour_tiles[#neighbour_tiles+1] = neighbour_tile
+    end
 end

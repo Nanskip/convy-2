@@ -67,19 +67,19 @@
             "animated": false,
             "variations" : 2
         },
-        "mask1": {
+        "mask_left": {
             "pos" : [0, 120],
             "animated": false
         },
-        "mask2": {
+        "mask_up": {
             "pos" : [8, 120],
             "animated": false
         },
-        "mask3": {
+        "mask_right": {
             "pos" : [16, 120],
             "animated": false
         },
-        "mask4": {
+        "mask_down": {
             "pos" : [24, 120],
             "animated": false
         }
