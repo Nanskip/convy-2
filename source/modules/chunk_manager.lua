@@ -99,12 +99,10 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     local quad = Quad()
 
     quad.Position = pos
+    quad:SetParent(World)
     -- tile texture atlas is 128x128
     quad.Width = 128
     quad.Height = 128
-    quad.Size = Number2(1/128, 1/128)
-    -- setting tile atlas
-    quad.Image = textures.tile_atlas
     -- changing properties
     -- quad.Tiling (Number2) -- default is 1, 1, but if set to 0.5, 0.5
     -- the fourth part of image will be seen (damn, it's a cutout btw)
@@ -117,8 +115,10 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     }
     quad.Offset = Number2(cords[1]/16, cords[2]/16) -- offset of the texture
 
+    -- setting tile atlas
+    quad.Image = textures.tile_atlas_blur
     quad.Rotation.X = math.pi/2
-    quad:SetParent(World)
+    quad.Scale = 1/128 -- reset scale
 
     block.quad = quad
 end

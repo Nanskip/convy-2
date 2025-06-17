@@ -18,6 +18,7 @@ Models = {
 Textures = {
     intro_logo = "textures/intro_logo.png",
     tile_atlas = "textures/tile_atlas.png",
+    tile_atlas_blur = "textures/tile_atlas_blur.png",
 }
 
 Sounds = {
