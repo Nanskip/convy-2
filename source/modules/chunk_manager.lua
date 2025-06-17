@@ -120,7 +120,7 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     quad.Offset = Number2(cords[1]/16, cords[2]/16) -- offset of the texture
 
     -- setting tile atlas
-    quad.Image = textures.tile_atlas_blur
+    quad.Image = {data = textures.tile_atlas, filtering=false}
     quad.Rotation.X = math.pi/2
     quad.Scale = 1/128 -- reset scale
 
