@@ -113,6 +113,10 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
         self.tile_atlas[tile_name].pos[1]/8,
         self.tile_atlas[tile_name].pos[2]/8
     }
+    if self.tile_atlas[tile_name].variations ~= nil then
+        local rand = math.random(0, self.tile_atlas[tile_name].variations-1)
+        cords[2] = cords[2] + rand
+    end
     quad.Offset = Number2(cords[1]/16, cords[2]/16) -- offset of the texture
 
     -- setting tile atlas

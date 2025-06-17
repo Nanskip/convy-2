@@ -14,47 +14,58 @@
         },
         "soft_sand": {
             "pos" : [24, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "hard_sand": {
             "pos" : [32, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "gravel": {
             "pos" : [40, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "low_grass": {
             "pos" : [48, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "grass": {
             "pos" : [56, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "high_grass": {
             "pos" : [64, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "spores": {
             "pos" : [72, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "dense_spores": {
             "pos" : [80, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "low_rocks": {
             "pos" : [88, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "rocks": {
             "pos" : [96, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         },
         "frozen_rocks": {
             "pos" : [104, 0],
-            "animated": false
+            "animated": false,
+            "variations" : 2
         }
     }
 }
