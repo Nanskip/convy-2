@@ -66,6 +66,22 @@
             "pos" : [104, 0],
             "animated": false,
             "variations" : 2
+        },
+        "mask1": {
+            "pos" : [0, 120],
+            "animated": false
+        },
+        "mask2": {
+            "pos" : [8, 120],
+            "animated": false
+        },
+        "mask3": {
+            "pos" : [16, 120],
+            "animated": false
+        },
+        "mask4": {
+            "pos" : [24, 120],
+            "animated": false
         }
     }
 }

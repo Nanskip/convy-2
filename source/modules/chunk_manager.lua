@@ -60,36 +60,7 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     if h == nil then
         return
     end
-    local tile_name = "deep_water"
-    if h < 0.07 then
-        tile_name = "deep_water"
-    elseif h < 0.14 then
-        tile_name = "water"
-    elseif h < 0.21 then
-        tile_name = "low_water"
-    elseif h < 0.28 then
-        tile_name = "soft_sand"
-    elseif h < 0.35 then
-        tile_name = "hard_sand"
-    elseif h < 0.42 then
-        tile_name = "gravel"
-    elseif h < 0.49 then
-        tile_name = "low_grass"
-    elseif h < 0.56 then
-        tile_name = "grass"
-    elseif h < 0.63 then
-        tile_name = "high_grass"
-    elseif h < 0.7 then
-        tile_name = "spores"
-    elseif h < 0.77 then
-        tile_name = "dense_spores"
-    elseif h < 0.84 then
-        tile_name = "low_rocks"
-    elseif h < 0.91 then
-        tile_name = "rocks"
-    else
-        tile_name = "frozen_rocks"
-    end
+    local tile_name = chunk_manager:getTile(h)
     -- creating quad
     local pos = Number3(
         chunkX*self.chunk_size + x,
@@ -125,6 +96,36 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     quad.Scale = 1/128 -- reset scale
 
     block.quad = quad
+    -- mask for neighbour tiles that are different from the current one
+    block.masks = {}
+
+    -- checking neighbours
+    local neighbour_tiles = chunk_manager:checkNeighbours(chunkX, chunkY, x, y)
+    for key, value in ipairs(neighbour_tiles) do
+        --1 = right
+        --2 = left
+        --3 = top
+        --4 = bottom
+        block.masks[value] = Quad()
+        block.masks[value].Position = Number3(
+            chunkX*self.chunk_size + x + 1,
+            0.1,
+            chunkY*self.chunk_size + y + 1
+        )
+        block.masks[value]:SetParent(World)
+        block.masks[value].Width = 128
+        block.masks[value].Height = 128
+        block.masks[value].Tiling = Number2(1/16, 1/16)
+        local cords = {
+            self.tile_atlas[mask .. value].pos[1]/8,
+            self.tile_atlas[mask .. value].pos[2]/8
+        }
+        -- no variations for masks
+        quad.Offset = Number2(cords[1]/16, cords[2]/16)
+        block.masks[value].Image = {data = textures.tile_atlas, filtering=false}
+        block.masks[value].Rotation.X = math.pi/2
+        block.masks[value].Scale = 1/128
+    end
 end
 
 chunk_manager.showQuad = function(self, chunkX, chunkY, x, y)
@@ -145,4 +146,69 @@ chunk_manager.hideQuad = function(self, chunkX, chunkY, x, y)
     if block.quad ~= nil then
         block.quad:Remove()
     end
+end
+
+chunk_manager.getTile = function(self, h)
+    local tile_name = "deep_water"
+    if h == nil then
+        return tile_name
+    end
+    if h < 0.07 then
+        tile_name = "deep_water"
+    elseif h < 0.14 then
+        tile_name = "water"
+    elseif h < 0.21 then
+        tile_name = "low_water"
+    elseif h < 0.28 then
+        tile_name = "soft_sand"
+    elseif h < 0.35 then
+        tile_name = "hard_sand"
+    elseif h < 0.42 then
+        tile_name = "gravel"
+    elseif h < 0.49 then
+        tile_name = "low_grass"
+    elseif h < 0.56 then
+        tile_name = "grass"
+    elseif h < 0.63 then
+        tile_name = "high_grass"
+    elseif h < 0.7 then
+        tile_name = "spores"
+    elseif h < 0.77 then
+        tile_name = "dense_spores"
+    elseif h < 0.84 then
+        tile_name = "low_rocks"
+    elseif h < 0.91 then
+        tile_name = "rocks"
+    else
+        tile_name = "frozen_rocks"
+    end
+
+    return tile_name
+end
+
+chunk_manager.checkNeighbours = function(self, chunkX, chunkY, x, y)
+    local neighbour_tiles = {}
+
+    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 1, 0)
+    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 0, 1)
+    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, -1, 0)
+    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 0, -1)
+
+    return neighbour_tiles
+end
+
+chunk_manager.checkNeighbour = function(self, chunkX, chunkY, x, y, neighbour_tiles, x_offset, y_offset)
+    local newChunk = self.chunks[chunkX][chunkY]
+    if newChunk[x+x_offset] == nil then
+        newChunk = self.chunks[chunkX+x_offset][chunkY]
+    end
+    local neighbourBlock = newChunk[x+x_offset][y+y_offset]
+    if neighbourBlock == nil then
+        return
+    end
+    local neighbourH = neighbourBlock.height
+
+    local neighbour_tile = chunk_manager:getTile(neighbourH)
+
+    neighbour_tiles[#neighbour_tiles+1] = neighbour_tile
 end
