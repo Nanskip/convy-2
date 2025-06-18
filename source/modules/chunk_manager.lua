@@ -6,6 +6,8 @@ chunk_manager.init = function(self, map)
     self.chunks = {}
     self.chunk_size = 8
 
+    _STATS_CHUNKS = 0
+
     -- check map data
     for chunkX = 1, (map.size+(self.chunk_size-1))/self.chunk_size do
         self.chunks[chunkX] = {}
@@ -40,6 +42,8 @@ chunk_manager.init = function(self, map)
     debug.log("Chunk Manager initialized.")
 end
 
+-- rendering full map is so unefficient
+-- used only for testing
 chunk_manager.renderFullMap = function(self)
     for chunkX = 1, #self.chunks do
         for chunkY = 1, #self.chunks[chunkX] do
@@ -49,6 +53,36 @@ chunk_manager.renderFullMap = function(self)
                 end
             end
         end
+    end
+end
+
+chunk_manager.renderNearbyChunks = function(self, chunkX, chunkY)
+    -- list of chunks being rendered
+    local showingChunks = {
+        {-3,  2}, {-2,  2}, {-1,  2}, {0,  2}, {1,  2}, {2,  2}, {3,  2},
+        {-3,  1}, {-2,  1}, {-1,  1}, {0,  1}, {1,  1}, {2,  1}, {3,  1},
+        {-3,  0}, {-2,  0}, {-1,  0}, {0,  0}, {1,  0}, {2,  0}, {3,  0},
+        {-3, -1}, {-2, -1}, {-1, -1}, {0, -1}, {1, -1}, {2, -1}, {3, -1},
+        {-3, -2}, {-2, -2}, {-1, -2}, {0, -2}, {1, -2}, {2, -2}, {3, -2},
+    }
+
+    -- list of chunks should be hidden, just a bounding box of rendered ones
+    local hidingChunks = {
+        {-4,  3}, {-3,  3}, {-2,  3}, {-1,  3}, {0,  3}, {1,  3}, {2,  3}, {3,  3}, {4,  3},
+        {-4,  2}, --[[------------------------there are--------------------------]] {4,  2},
+        {-4,  1}, --[[----------------chunks-------------------------------------]] {4,  1},
+        {-4,  0}, --[[-------------------------------being-----------------------]] {4,  0},
+        {-4, -1}, --[[-----------------------rendered----------------------------]] {4, -1},
+        {-4, -2}, --[[-------------------------dayuuumm--------------------------]] {4, -2},
+        {-4, -3}, {-3, -3}, {-2, -3}, {-1, -3}, {0, -3}, {1, -3}, {2, -3}, {3, -3}, {4, -3},
+    }
+    
+    for _, chunk in ipairs(showingChunks) do
+        self:showChunk(chunkX + chunk[1], chunkY + chunk[2])
+    end
+
+    for _, chunk in ipairs(hidingChunks) do
+        self:hideChunk(chunkX + chunk[1], chunkY + chunk[2])
     end
 end
 
@@ -90,6 +124,11 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
     end
     quad.Offset = Number2(cords[1]/16, cords[2]/16) -- offset of the texture
 
+    if self.tile_atlas[tile_name].animated == true then
+        self.chunks[chunkX][chunkY].animatedObjects[#self.chunks[chunkX][chunkY].animatedObjects+1] = quad
+    end
+    quad.name = tile_name
+
     -- setting tile atlas
     quad.Image = {data = textures.tile_atlas, filtering=false}
     quad.Rotation.X = math.pi/2
@@ -102,63 +141,101 @@ chunk_manager.createQuad = function(self, chunkX, chunkY, x, y)
 
     -- checking neighbours
     local neighbour_tiles = chunk_manager:checkNeighbours(chunkX, chunkY, x, y)
+    local num_neighbours = 0
     for key, value in pairs(neighbour_tiles) do
-        if value == nil then
+        num_neighbours = num_neighbours + 1
+    end
+    for key, value in pairs(neighbour_tiles) do
+        if value == nil or self.tile_atlas[value] == nil then
+            debug.log("Invalid neighbour tile:", tostring(value))
             return
         end
         local direction = key
 
-        if self.tile_atlas["mask_" .. direction] == nil then
-            debug.log("Mask not found: mask_" .. direction)
-        end
-
-        block.masks[key] = Quad()
-        block.masks[key].Position = Number3(
+        -- create half opacity mask with neighbours texture to blend borders
+        local mask = Quad()
+        mask:SetParent(World)
+        -- tile texture atlas is 128x128
+        mask.Position = Number3(
             chunkX*self.chunk_size + x,
-            0.1,
+            0.05,
             chunkY*self.chunk_size + y
         )
-        block.masks[key]:SetParent(World)
-        block.masks[key].Width = 128
-        block.masks[key].Height = 128
-        block.masks[key].Rotation.X = math.pi/2
-        block.masks[key].Scale = 1/128
-        block.masks[key].Tiling = Number2(1/16, 1/16)
-        block.masks[key].Color.A = 0.25
-        local coords = {
-            self.tile_atlas["mask_" .. direction].pos[1]/8,
-            self.tile_atlas["mask_" .. direction].pos[2]/8
-        }
-        -- no variations for masks
-        block.masks[key].Offset = Number2(coords[1]/16, coords[2]/16)
-        block.masks[key].Image = {data = textures.tile_atlas, filtering=false, alpha=true}
-        block.masks[key].IsMask = true
-        
-        -- set texture quad of mask, the name of neighbour stored in `value`
-        -- should be child of mask
-        
-        local quad = Quad()
-
-        quad.Position = pos
-        quad:SetParent(block.masks[key])
-        -- tile texture atlas is 128x128
-        quad.Width = 128
-        quad.Height = 128
-        quad.Tiling = Number2(1/16, 1/16)
-        local cords = {
+        mask.Width = 128
+        mask.Height = 128
+        mask.Tiling = Number2(1/16, 1/16)
+        local cords_quad = {
             self.tile_atlas[value].pos[1]/8,
             self.tile_atlas[value].pos[2]/8
         }
         if self.tile_atlas[value].variations ~= nil then
             local rand = math.random(0, self.tile_atlas[value].variations-1)
-            cords[2] = cords[2] + rand
+            cords_quad[2] = cords_quad[2] + rand
         end
-        quad.Offset = Number2(cords[1]/16, cords[2]/16)
+        mask.Offset = Number2(cords_quad[1]/16, cords_quad[2]/16)
+        mask.Color.A = 0.1/num_neighbours
+        mask.IsUnlit = true
+        mask.Shadow = false
+        mask.Rotation.X = math.pi/2
+        mask.Scale = 1/128
 
-        quad.Image = {data = textures.tile_atlas, filtering=false}
-        quad.Rotation.X = math.pi/2
-        quad.Scale = 1/128
-        block.masks[key].texture = quad
+        mask.Image = {data = textures.tile_atlas, filtering=false}
+        block.masks[key] = mask
+    end
+end
+
+chunk_manager.showChunk = function(self, chunkX, chunkY)
+    if self.chunks[chunkX] == nil or self.chunks[chunkX][chunkY] == nil then
+        return
+    end
+    if self.chunks[chunkX][chunkY].rendered then
+        return
+    end
+    self.chunks[chunkX][chunkY].rendered = true
+    self.chunks[chunkX][chunkY].animatedObjects = {}
+    self.chunks[chunkX][chunkY].tickObject = Object()
+    self.chunks[chunkX][chunkY].tickObject.Tick = function(_)
+        for _, obj in ipairs(self.chunks[chunkX][chunkY].animatedObjects) do
+            if obj.frame == nil then obj.frame = 0 end -- ensure that frame is initialized
+            if math.random(0, 2) ~= 0 then
+                obj.frame = obj.frame + 1
+            end
+            if obj.frame >= 8 then obj.frame = 0 end -- reset frame if it reaches 8
+
+            -- calculate frame coords
+            local coords = {
+                self.tile_atlas[obj.name].pos[1]/8,
+                (self.tile_atlas[obj.name].pos[2]/8) + (obj.frame)
+            }
+
+            -- apply frame offset
+            obj.Offset = Number2(coords[1]/16, coords[2]/16)
+        end
+    end
+    _STATS_CHUNKS = _STATS_CHUNKS + 1
+    for x = 1, self.chunk_size do
+        for y = 1, self.chunk_size do
+            self:showQuad(chunkX, chunkY, x, y)
+        end
+    end
+end
+
+chunk_manager.hideChunk = function(self, chunkX, chunkY)
+    if self.chunks[chunkX] == nil or self.chunks[chunkX][chunkY] == nil then
+        return
+    end
+    if not self.chunks[chunkX][chunkY].rendered then
+        return
+    end
+    self.chunks[chunkX][chunkY].rendered = false
+    self.chunks[chunkX][chunkY].animatedObjects = nil
+    self.chunks[chunkX][chunkY].tickObject.Tick = nil
+    self.chunks[chunkX][chunkY].tickObject = nil
+    _STATS_CHUNKS = _STATS_CHUNKS - 1
+    for x = 1, self.chunk_size do
+        for y = 1, self.chunk_size do
+            self:hideQuad(chunkX, chunkY, x, y)
+        end
     end
 end
 
@@ -167,18 +244,33 @@ chunk_manager.showQuad = function(self, chunkX, chunkY, x, y)
     local block = chunk[x][y]
 
     if block.quad ~= nil then
-        block.quad:Remove()
+        for key, value in pairs(block.masks) do
+            value:Destroy()
+            value = nil
+        end
+
+        block.quad:Destroy()
+        block.quad = nil
     end
 
     self:createQuad(chunkX, chunkY, x, y)
 end
 
 chunk_manager.hideQuad = function(self, chunkX, chunkY, x, y)
+    if self.chunks[chunkX] == nil or self.chunks[chunkX][chunkY] == nil then
+        return
+    end
     local chunk = self.chunks[chunkX][chunkY]
     local block = chunk[x][y]
 
     if block.quad ~= nil then
-        block.quad:Remove()
+        for key, value in pairs(block.masks) do
+            value:Destroy()
+            value = nil
+        end
+
+        block.quad:Destroy()
+        block.quad = nil
     end
 end
 
@@ -225,29 +317,49 @@ chunk_manager.checkNeighbours = function(self, chunkX, chunkY, x, y)
         down = nil
     }
 
-    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 1, 0, "right")
-    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 0, 1, "up")
     self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, -1, 0, "left")
+    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 0, 1, "up")
+    self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 1, 0, "right")
     self:checkNeighbour(chunkX, chunkY, x, y, neighbour_tiles, 0, -1, "down")
 
     return neighbour_tiles
 end
 
-chunk_manager.checkNeighbour = function(self, chunkX, chunkY, x, y, neighbour_tiles, x_offset, y_offset, direction)
-    local newChunk = self.chunks[chunkX][chunkY]
-    if newChunk[x+x_offset] == nil then
-        newChunk = self.chunks[chunkX+x_offset][chunkY]
+chunk_manager.checkNeighbour = function(self, chunkX, chunkY, x, y, neighbour_tiles, dx, dy, direction)
+    local nx, ny = x + dx, y + dy
+    local nChunkX, nChunkY = chunkX, chunkY
+
+    -- correction of chunk coordinates if out of bounds
+    if nx < 1 then
+        nChunkX = chunkX - 1
+        nx = self.chunk_size
+    elseif nx > self.chunk_size then
+        nChunkX = chunkX + 1
+        nx = 1
     end
-    local neighbourBlock = newChunk[x+x_offset][y+y_offset]
-    if neighbourBlock == nil then
+
+    if ny < 1 then
+        nChunkY = chunkY - 1
+        ny = self.chunk_size
+    elseif ny > self.chunk_size then
+        nChunkY = chunkY + 1
+        ny = 1
+    end
+
+    -- checking for existence of neighbour chunk
+    if not self.chunks[nChunkX] or not self.chunks[nChunkX][nChunkY] then
         return
     end
-    local neighbourH = neighbourBlock.height
 
-    local neighbour_tile = chunk_manager:getTile(neighbourH)
-    local original_tile = chunk_manager:getTile(self.chunks[chunkX][chunkY][x][y].height)
+    local neighbourChunk = self.chunks[nChunkX][nChunkY]
+    local neighbourBlock = neighbourChunk[nx] and neighbourChunk[nx][ny]
 
-    if neighbour_tile ~= original_tile then
+    if not neighbourBlock then return end
+
+    local neighbour_tile = chunk_manager:getTile(neighbourBlock.height)
+    local current_tile = chunk_manager:getTile(self.chunks[chunkX][chunkY][x][y].height)
+
+    if neighbour_tile ~= current_tile then
         neighbour_tiles[direction] = neighbour_tile
     end
 end
