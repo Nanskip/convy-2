@@ -18,88 +18,34 @@ temporary.init = function()
             }
         }
     })
-    -- create cube button
-    debugwindow.createCube = debugwindow:createFrame({
-            pos = {50, 25},
-            size = {200, 50},
-            color = Color(255, 255, 255),
-        })
-    debugwindow.createCubeText = debugwindow:createText({
-            pos = {0, 0},
-            color = Color(0, 0, 0),
-            fontsize = 30,
-            text = "Generate Cube",
-        })
-    debugwindow.createCubeText.config.pos = {
-        (debugwindow.createCube.config.pos[1] + debugwindow.createCube.Width/2)
-        - (debugwindow.createCubeText.Width/2),
 
-        (debugwindow.createCube.config.pos[2] + debugwindow.createCube.Height/2)
-        - (debugwindow.createCubeText.Height/2)
-    }
-    debugwindow.createCubeText:update()
+    -- frametime graph to display some info
+    debugwindow.frametime_graph = {}
+    debugwindow.frametime_graph.tick = Object()
+    debugwindow.frametime_graph.tick.Tick = function(self)
+        debugwindow.frametime_graph:update()
+    end
+    debugwindow.frametime_graph.update = function(self)
+        local graph = debugwindow.frametime_graph.graph
 
-    debugwindow.createCube.onPress = function(self)
-        self.config.color = Color(200, 200, 200)
-        self:update()
-        if _CUBE == nil then
-            seed = os.time()
-            _CUBE = worldgen.perlinCube({seed = seed})
-            _CUBE:SetParent(World)
-            debug.log("Cube generated.")
-        else
-            _CUBE:Destroy()
-            _CUBE = nil
-
-            seed = seed + 1
-            _CUBE = worldgen.perlinCube({seed = seed})
-            _CUBE:SetParent(World)
-            debug.log("Cube regenerated.")
+        for i = 1, 99 do
+            graph[i].pos.Y = graph[i + 1].pos.Y
         end
+
+        graph[100].pos.Y = _DT * (63/2)
     end
 
-    -- create plane button
-    debugwindow.createPlane = debugwindow:createFrame({
-            pos = {50, 100},
-            size = {200, 50},
-            color = Color(255, 255, 255),
-        })
-    debugwindow.createPlaneText = debugwindow:createText({
-            pos = {0, 0},
-            color = Color(0, 0, 0),
-            fontsize = 30,
-            text = "Generate Plane",
-        })
-    debugwindow.createPlaneText.config.pos = {
-        (debugwindow.createPlane.config.pos[1] + debugwindow.createPlane.Width/2)
-        - (debugwindow.createPlaneText.Width/2),
 
-        (debugwindow.createPlane.config.pos[2] + debugwindow.createPlane.Height/2)
-        - (debugwindow.createPlaneText.Height/2)
-    }
-    debugwindow.createPlaneText:update()
+    debugwindow.frametime_graph.graph = {}
+    for i = 1, 100 do
+        local part = _UIKIT:createFrame()
 
-    debugwindow.createPlane.onPress = function(self)
-        self.config.color = Color(200, 200, 200)
-        self:update()
-        if _PLANE == nil then
-            seed = os.time()
-            _PLANE = worldgen.diamondSquare({seed = seed})
-            _PLANE:SetParent(World)
-            _PLANE.Position = Number3(-_PLANE.Width/4, -_PLANE.Height/4, -_PLANE.Depth/4)
-            _PLANE.Scale = 0.5
-            debug.log("Plane generated.")
-        else
-            _PLANE:Destroy()
-            _PLANE = nil
+        part.Size = {3, 3}
+        part.Color = Color(255, 0, 0)
+        part:setParent(debugwindow.mask)
+        part.pos = {(i-1)*3, 0}
 
-            seed = seed + 1
-            _PLANE = worldgen.diamondSquare({seed = seed})
-            _PLANE:SetParent(World)
-            _PLANE.Position = Number3(-_PLANE.Width/4, -_PLANE.Height/4, -_PLANE.Depth/4)
-            _PLANE.Scale = 0.5
-            debug.log("Plane regenerated.")
-        end
+        debugwindow.frametime_graph.graph[i] = part
     end
 
     local a = AudioSource()

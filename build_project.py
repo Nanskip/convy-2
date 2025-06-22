@@ -135,10 +135,13 @@ def generate_build(modules, assets, main_code, github_base_url, module_sources):
     out.append("function _log(msg) debug.log(msg) loading_screen.loading_text_update(msg) end")
     out.append("function _check_ready() if loaded >= to_load then _log('All assets loaded') _start_game() end end\n")
 
+    # do not load assets on SERVER!!!
+    out.append("if IsServer then return end\n")
     # Load 3D models
     print("Loading 3D models...")
     for key, filename in assets["models"].items():
         url = f"{github_base_url}/source/models/{filename}"
+        print("Inserting model", key)
         out.append(f"""to_load = to_load + 1
 _log("Downloading models/{key}")
 HTTP:Get("{url}", function(res)
