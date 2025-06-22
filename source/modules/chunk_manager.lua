@@ -197,7 +197,7 @@ chunk_manager.showChunk = function(self, chunkX, chunkY)
     self.chunks[chunkX][chunkY].tickObject.Tick = function(_)
         for _, obj in ipairs(self.chunks[chunkX][chunkY].animatedObjects) do
             if obj.frame == nil then obj.frame = 0 end -- ensure that frame is initialized
-            if math.random(0, 2) ~= 0 then
+            if math.random(0, 5) == 0 then
                 obj.frame = obj.frame + 1
             end
             if obj.frame >= 8 then obj.frame = 0 end -- reset frame if it reaches 8
